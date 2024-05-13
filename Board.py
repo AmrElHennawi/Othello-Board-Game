@@ -146,9 +146,11 @@ class Board:
                 if self.board[i][j] == -1:
                     black += 1
         if black > white:
-            messagebox.showinfo("Message", "Black Wins!")
+            messagebox.showinfo(
+                "Message", "Black Wins! black: {} white: {}".format(black, white))
         elif white > black:
-            messagebox.showinfo("Message", "White Wins!")
+            messagebox.showinfo(
+                "Message", "White Wins!" "black: {} white: {}".format(black, white))
         else:
             messagebox.showinfo("Message", "It's a tie!")
 
@@ -160,11 +162,19 @@ class Board:
                 self.colorInBetween(i, j, currentColor)
                 self.current_player *= -1
                 self.clearRed()
+                if self.RepresentPossibleMoves(self.current_player) == False:
+                    self.current_player *= -1
+                    if self.RepresentPossibleMoves(self.current_player) == False:
+                        self.winner()
+
             else:
                 messagebox.showinfo(
                     "Message", "Invalid move! No Sandwich Relationship.")
                 self.colorBoard()
                 self.current_player *= 1
+
+        elif self.checkWinning():
+            self.winner()
 
     def clearRed(self):
         self.sandwichCells.clear()
@@ -177,11 +187,11 @@ class Board:
     def button_clicked(self, row, col):
         self.UpdateBoard(row, col)
         self.RepresentPossibleMoves(self.current_player)
-        
+
     def utility(self):
         currentColor = self.current_player
         score = 0
-        nextColor = -currentColor  
+        nextColor = -currentColor
 
         for i in self.board:
             for cell in i:
@@ -190,7 +200,8 @@ class Board:
                 elif cell == nextColor:
                     score -= 1
         return score
-    
+
+
 def main():
     board = Board()
 
