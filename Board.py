@@ -200,6 +200,30 @@ class Board:
                 elif cell == nextColor:
                     score -= 1
         return score
+    
+    def alpha_beta(self,state, depth, alpha, beta, maximizingPlayer):
+        state =self.sandwichCells
+        if depth == 0 :
+            return self.utility()
+        if maximizingPlayer == -1:
+            Maxvalue = -100000000000
+            for i in state:
+                Maxvalue = max(Maxvalue, self.alpha_beta(state, depth - 1, alpha, beta, -1))
+                if Maxvalue > beta :
+                    break 
+                alpha = max(alpha, Maxvalue)
+            return Maxvalue
+        else:
+            Minvalue = 1000000000000
+            for i in state:
+                Minvalue = min(Minvalue, self.alpha_beta(state, depth - 1, alpha, beta, 1))
+                if Minvalue < alpha:
+                    break 
+                beta = min(beta, Minvalue)
+            return Minvalue
+        
+ 
+    
 
 
 def main():
