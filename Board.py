@@ -191,9 +191,6 @@ class Board:
                     score -= 1
         return score
     
-	
-
-
 def main():
     board = Board()
 
