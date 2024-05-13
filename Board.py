@@ -143,6 +143,21 @@ class Board:
     def button_clicked(self, row, col):
         self.UpdateBoard(row, col)
         self.RepresentPossibleMoves(self.current_player)
+        
+    def utility(self):
+        currentColor = self.current_player
+        score = 0
+        nextColor = -currentColor  
+
+        for i in self.board:
+            for cell in i:
+                if cell == currentColor:
+                    score += 1
+                elif cell == nextColor:
+                    score -= 1
+        return score
+    
+	
 
 
 def main():
