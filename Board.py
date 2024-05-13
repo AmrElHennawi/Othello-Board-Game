@@ -8,7 +8,7 @@ class Board:
         self.window.title("Othello Game")
         self.canvas = tk.Canvas(self.window, width=600,
                                 height=600, background="green")
-        self.window.resizable(width=True, height=True)
+        self.window.resizable(width=False, height=False)
         self.boardSize = 8
         self.board = [[0 for i in range(self.boardSize)]
                       for j in range(self.boardSize)]
@@ -59,8 +59,7 @@ class Board:
                         if self.board[i][right] == current_color:
                             break
                         if self.board[i][right] == -current_color and self.board[i][right+1] == 0:
-                            self.sandwichCells.append(
-                                (("r"), (i, right+1)))
+                            self.sandwichCells.append((i, right+1))
 
                     for left in range(j-1, 0, -1):
                         if self.board[i][left] == 0:
@@ -68,8 +67,7 @@ class Board:
                         if self.board[i][left] == current_color:
                             break
                         if self.board[i][left] == -current_color and self.board[i][left-1] == 0:
-                            self.sandwichCells.append(
-                                (("l"), (i, left-1)))
+                            self.sandwichCells.append((i, left-1))
 
                     for down in range(i+1, self.boardSize - 1):
                         if self.board[down][j] == 0:
@@ -77,8 +75,7 @@ class Board:
                         if self.board[down][j] == current_color:
                             break
                         if self.board[down][j] == -current_color and self.board[down+1][j] == 0:
-                            self.sandwichCells.append(
-                                (("d"), (down+1, j)))
+                            self.sandwichCells.append((down+1, j))
 
                     for up in range(i-1, 0, -1):
                         if self.board[up][j] == 0:
@@ -86,45 +83,82 @@ class Board:
                         if self.board[up][j] == current_color:
                             break
                         if self.board[up][j] == -current_color and self.board[up-1][j] == 0:
-                            self.sandwichCells.append(
-                                (("u"), (up-1, j)))
+                            self.sandwichCells.append((up-1, j))
 
     def RepresentPossibleMoves(self, current_color):
         self.findSandwichCells(current_color)
         if self.sandwichCells:
             for cell in self.sandwichCells:
-                self.board[cell[1][0]][cell[1][1]] = 2
+                self.board[cell[0]][cell[1]] = 2
                 self.colorBoard()
             return True
         return False
 
     def colorInBetween(self, i, j, currentColor):
-        for cell in self.sandwichCells:
-            if cell[0][0] == "r":
-                for right in range(j+1, cell[1][1]):
-                    if self.board[i][right] == -currentColor:
-                        self.board[i][right] = currentColor
-            if cell[0][0] == "l":
-                for left in range(j-1, cell[1][1], -1):
-                    if self.board[i][left] == -currentColor:
-                        self.board[i][left] = currentColor
-            if cell[0][0] == "d":
-                for down in range(i+1, cell[1][0]):
-                    if self.board[down][j] == -currentColor:
-                        self.board[down][j] = currentColor
-            if cell[0][0] == "u":
-                for up in range(i-1, cell[1][0], -1):
-                    if self.board[up][j] == -currentColor:
-                        self.board[up][j] = currentColor
+        for right in range(j+1, self.boardSize - 1):
+            if self.board[i][right] == 0:
+                break
+            if self.board[i][right] == currentColor:
+                break
+            if self.board[i][right] == -currentColor:
+                self.board[i][right] = currentColor
+
+        for left in range(j-1, 0, -1):
+            if self.board[i][left] == 0:
+                break
+            if self.board[i][left] == currentColor:
+                break
+            if self.board[i][left] == -currentColor:
+                self.board[i][left] = currentColor
+
+        for down in range(i+1, self.boardSize - 1):
+            if self.board[down][j] == 0:
+                break
+            if self.board[down][j] == currentColor:
+                break
+            if self.board[down][j] == -currentColor:
+                self.board[down][j] = currentColor
+
+        for up in range(i-1, 0, -1):
+            if self.board[up][j] == 0:
+                break
+            if self.board[up][j] == currentColor:
+                break
+            if self.board[up][j] == -currentColor:
+                self.board[up][j] = currentColor
+
         self.colorBoard()
+
+    def checkWinning(self):
+        for i in range(8):
+            for j in range(8):
+                if self.board[i][j] == 0 or self.board[i][j] == 2:
+                    return False
+        return True
+
+    def winner(self):
+        black = 0
+        white = 0
+        for i in range(8):
+            for j in range(8):
+                if self.board[i][j] == 1:
+                    white += 1
+                if self.board[i][j] == -1:
+                    black += 1
+        if black > white:
+            messagebox.showinfo("Message", "Black Wins!")
+        elif white > black:
+            messagebox.showinfo("Message", "White Wins!")
+        else:
+            messagebox.showinfo("Message", "It's a tie!")
 
     def UpdateBoard(self, i, j):
         currentColor = self.current_player
         if self.RepresentPossibleMoves(currentColor):
             if self.board[i][j] == 2:
                 self.board[i][j] = currentColor
-                self.current_player *= -1
                 self.colorInBetween(i, j, currentColor)
+                self.current_player *= -1
                 self.clearRed()
             else:
                 messagebox.showinfo(
