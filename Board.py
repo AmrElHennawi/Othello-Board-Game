@@ -98,25 +98,25 @@ class Board:
             return True
         return False
 
-    # def colorInBetween(self, i, j, currentColor):
-    #     for cell in self.sandwichCells:
-    #         if cell[0][0] == "r":
-    #             for right in range(j+1, cell[1][1]):
-    #                 if self.board[i][right] == -currentColor:
-    #                     self.board[i][right] = currentColor
-    #         if cell[0][0] == "l":
-    #             for left in range(j-1, cell[1][1], -1):
-    #                 if self.board[i][left] == -currentColor:
-    #                     self.board[i][left] = currentColor
-    #         if cell[0][0] == "d":
-    #             for down in range(i+1, cell[1][0]):
-    #                 if self.board[down][j] == -currentColor:
-    #                     self.board[down][j] = currentColor
-    #         if cell[0][0] == "u":
-    #             for up in range(i-1, cell[1][0], -1):
-    #                 if self.board[up][j] == -currentColor:
-    #                     self.board[up][j] = currentColor
-    #     self.colorBoard()
+    def colorInBetween(self, i, j, currentColor):
+        for cell in self.sandwichCells:
+            if cell[0][0] == "r":
+                for right in range(j+1, cell[1][1]):
+                    if self.board[i][right] == -currentColor:
+                        self.board[i][right] = currentColor
+            if cell[0][0] == "l":
+                for left in range(j-1, cell[1][1], -1):
+                    if self.board[i][left] == -currentColor:
+                        self.board[i][left] = currentColor
+            if cell[0][0] == "d":
+                for down in range(i+1, cell[1][0]):
+                    if self.board[down][j] == -currentColor:
+                        self.board[down][j] = currentColor
+            if cell[0][0] == "u":
+                for up in range(i-1, cell[1][0], -1):
+                    if self.board[up][j] == -currentColor:
+                        self.board[up][j] = currentColor
+        self.colorBoard()
 
     def UpdateBoard(self, i, j):
         currentColor = self.current_player
@@ -124,7 +124,7 @@ class Board:
             if self.board[i][j] == 2:
                 self.board[i][j] = currentColor
                 self.current_player *= -1
-                # self.colorInBetween(i, j, currentColor)
+                self.colorInBetween(i, j, currentColor)
                 self.clearRed()
             else:
                 messagebox.showinfo(
