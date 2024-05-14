@@ -1,6 +1,11 @@
+from copy import copy
+from random import random
 from time import sleep
 import tkinter as tk
 from tkinter import messagebox
+
+DIRECTIONS = [(0, 1), (1, 0), (0, -1), (-1, 0),
+              (1, 1), (-1, -1), (1, -1), (-1, 1)]
 
 
 class Board:
@@ -207,48 +212,107 @@ class Board:
 # Inside the Board class
 
     def computerMove(self):
+        sleep(1)
+        bestMove = self.getBestMove()
+        if bestMove is not None:
+            self.makeMove(bestMove[0], bestMove[1])
+        else:
+            print("No valid move found for the computer.")
+
+    def alphaBeta(self, depth, alpha, beta, maximizingPlayer):
+        if depth == 0 or self.gameOver():
+            return self.evaluate()
+
+        if maximizingPlayer:
+            maxEval = float('-inf')
+            ValidMoves = self.getValidMoves()
+
+            for move in ValidMoves:
+                tempBoard = copy.deepcopy(self)
+                tempBoard.makeMove(move[0], move[1])
+                maxEval = max(maxEval, tempBoard.alphaBeta(
+                    depth - 1, alpha, beta, False))
+                alpha = max(alpha, maxEval)
+                if beta <= alpha:
+                    break
+            return maxEval
+        else:
+
+            minEval = float('inf')
+            ValidMoves = self.getValidMoves(-self.current_player)
+
+            for move in ValidMoves:
+                tempBoard = copy.deepcopy(self)
+                tempBoard.makeMove(move[0], move[1])
+                minEval = min(minEval, tempBoard.alphaBeta(
+                    depth - 1, alpha, beta, True))
+                beta = min(beta, minEval)
+                if beta <= alpha:
+                    break
+            return minEval
+
+    def isValidMove(self, row, col):
+        if self.board[row][col] != 0:
+            return False
+        for dr, dc in DIRECTIONS:
+            r, c = row + dr, col + dc
+            if 0 <= r < 8 and 0 <= c < 8 and self.board[r][c] == -self.current_player:
+                while 0 <= r < 8 and 0 <= c < 8 and self.board[r][c] == -self.current_player:
+                    r += dr
+                    c += dc
+                if 0 <= r < 8 and 0 <= c < 8 and self.board[r][c] == self.current_player:
+                    return True
+        return False
+
+    def makeMove(self, row, col):
+        if not self.isValidMove(row, col):
+            return False
+        self.board[row][col] = self.current_player
+
+        for dr, dc in DIRECTIONS:
+            r, c = row + dr, col + dc
+            if 0 <= r < 8 and 0 <= c < 8 and self.board[r][c] == -self.current_player:
+                while 0 <= r < 8 and 0 <= c < 8 and self.board[r][c] == -self.current_player:
+                    r += dr
+                    c += dc
+
+                if 0 <= r < 8 and 0 <= c < 8 and self.board[r][c] == self.current_player:
+                    while True:
+                        r -= dr
+                        c -= dc
+                        if r == row and c == col:
+                            break
+                        self.board[r][c] = self.current_player
+        return True
+
+    def getValidMoves(self):
+        ValidMoves = []
+        for i in range(8):
+            for j in range(8):
+                if self.isValidMove(i, j):
+                    ValidMoves.append((i, j))
+        return ValidMoves
+
+    def getBestMove(self):
         print("Computer's turn")
-        depth = 0
         if self.difficulty == 1:
             depth = 1
         elif self.difficulty == 2:
             depth = 3
         elif self.difficulty == 3:
             depth = 5
-        bestScore = float('-inf')
         bestMove = None
-        for move in self.sandwichCells:
-            board_copy = self
-            board_copy.UpdateBoard(move[0], move[1])
-            eval = board_copy.alpha_beta(
+        maxEval = float('-inf')
+        ValidMoves = self.getValidMoves()
+        for move in ValidMoves:
+            tempBoard = copy.deepcopy(self)
+            tempBoard.makeMove(move[0], move[1])
+            eval = tempBoard.alphaBeta(
                 depth, float('-inf'), float('inf'), False)
-            if eval > bestScore:
-                bestScore = eval
+            if eval > maxEval:
+                maxEval = eval
                 bestMove = move
-        self.UpdateBoard(bestMove[0], bestMove[1])
-
-    def alpha_beta(self, depth, alpha, beta, maximizingPlayer):
-        state = self.sandwichCells
-        if depth == 0:
-            return self.utility()
-        if maximizingPlayer == -1:
-            Maxvalue = -100000000000
-            for i in state:
-                Maxvalue = max(Maxvalue, self.alpha_beta(
-                    state, depth - 1, alpha, beta, -1))
-                if Maxvalue > beta:
-                    break
-                alpha = max(alpha, Maxvalue)
-            return Maxvalue
-        else:
-            Minvalue = 1000000000000
-            for i in state:
-                Minvalue = min(Minvalue, self.alpha_beta(
-                    state, depth - 1, alpha, beta, 1))
-                if Minvalue < alpha:
-                    break
-                beta = min(beta, Minvalue)
-            return Minvalue
+        return bestMove
 
 
 def main():
@@ -256,11 +320,10 @@ def main():
         input("Enter the difficulty level: 1-Easy, 2-Medium, 3-Hard: "))
     board = Board(difficulty)
     while not board.checkWinning():
-        # if board.current_player == 1:
-        #     board.computerMove()
-        # elif board.current_player == -1:
-        #     board.window.update()
-        board.window.update()
+        if board.current_player == -1:
+            board.computerMove()
+        elif board.current_player == 1:
+            board.window.update()
 
         if board.checkWinning():
             break
