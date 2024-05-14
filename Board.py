@@ -1,9 +1,10 @@
+from time import sleep
 import tkinter as tk
 from tkinter import messagebox
 
 
 class Board:
-    def __init__(self):
+    def __init__(self, difficulty):
         self.window = tk.Tk()
         self.window.title("Othello Game")
         self.canvas = tk.Canvas(self.window, width=600,
@@ -14,9 +15,9 @@ class Board:
                       for j in range(self.boardSize)]
         self.sandwichCells = []
         self.current_player = -1  # Start with black player
+        self.difficulty = difficulty
         self.startBoard()
         self.createBoard()
-        self.window.mainloop()
 
     def startBoard(self):
         self.board[3][3] = 1
@@ -187,6 +188,8 @@ class Board:
     def button_clicked(self, row, col):
         self.UpdateBoard(row, col)
         self.RepresentPossibleMoves(self.current_player)
+        # if not self.checkWinning():
+        #     self.computerMove()
 
     def utility(self):
         currentColor = self.current_player
@@ -200,34 +203,69 @@ class Board:
                 elif cell == nextColor:
                     score -= 1
         return score
-    
-    def alpha_beta(self,state, depth, alpha, beta, maximizingPlayer):
-        state =self.sandwichCells
-        if depth == 0 :
+
+# Inside the Board class
+
+    def computerMove(self):
+        print("Computer's turn")
+        depth = 0
+        if self.difficulty == 1:
+            depth = 1
+        elif self.difficulty == 2:
+            depth = 3
+        elif self.difficulty == 3:
+            depth = 5
+        bestScore = float('-inf')
+        bestMove = None
+        for move in self.sandwichCells:
+            board_copy = self
+            board_copy.UpdateBoard(move[0], move[1])
+            eval = board_copy.alpha_beta(
+                depth, float('-inf'), float('inf'), False)
+            if eval > bestScore:
+                bestScore = eval
+                bestMove = move
+        self.UpdateBoard(bestMove[0], bestMove[1])
+
+    def alpha_beta(self, depth, alpha, beta, maximizingPlayer):
+        state = self.sandwichCells
+        if depth == 0:
             return self.utility()
         if maximizingPlayer == -1:
             Maxvalue = -100000000000
             for i in state:
-                Maxvalue = max(Maxvalue, self.alpha_beta(state, depth - 1, alpha, beta, -1))
-                if Maxvalue > beta :
-                    break 
+                Maxvalue = max(Maxvalue, self.alpha_beta(
+                    state, depth - 1, alpha, beta, -1))
+                if Maxvalue > beta:
+                    break
                 alpha = max(alpha, Maxvalue)
             return Maxvalue
         else:
             Minvalue = 1000000000000
             for i in state:
-                Minvalue = min(Minvalue, self.alpha_beta(state, depth - 1, alpha, beta, 1))
+                Minvalue = min(Minvalue, self.alpha_beta(
+                    state, depth - 1, alpha, beta, 1))
                 if Minvalue < alpha:
-                    break 
+                    break
                 beta = min(beta, Minvalue)
             return Minvalue
-        
- 
-    
 
 
 def main():
-    board = Board()
+    difficulty = int(
+        input("Enter the difficulty level: 1-Easy, 2-Medium, 3-Hard: "))
+    board = Board(difficulty)
+    while not board.checkWinning():
+        # if board.current_player == 1:
+        #     board.computerMove()
+        # elif board.current_player == -1:
+        #     board.window.update()
+        board.window.update()
+
+        if board.checkWinning():
+            break
+
+    board.window.mainloop()
 
 
 if __name__ == "__main__":
