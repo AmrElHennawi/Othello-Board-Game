@@ -1,5 +1,4 @@
 import copy
-from time import sleep
 from tkinter import messagebox
 from tkinter import simpledialog
 import tkinter as tk
