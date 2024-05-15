@@ -219,14 +219,14 @@ class Othello:
             depth = 1
 
         bestMove = None
-        maxEval = -64
+        maxEval = float('-inf')
         ValidMoves = self.getValidMoves(self.currentPlayer)
 
         for move in ValidMoves:
             tempBoard = copy.deepcopy(self)
             tempBoard.makeMove(move[0], move[1], self.currentPlayer)
             eval = tempBoard.alphaBeta(
-                depth - 1, -64, 64, False)
+                depth, -64, 64, False)
             if eval > maxEval:
                 maxEval = eval
                 bestMove = move
