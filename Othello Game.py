@@ -167,7 +167,7 @@ class Othello:
     def evaluate(self):
         currentColor = self.currentPlayer
         score = 0
-        nextColor = -currentColor
+        nextColor = 3 - currentColor
 
         for i in self.board:
             for cell in i:
