@@ -219,7 +219,7 @@ class Othello:
             depth = 1
 
         bestMove = None
-        maxEval = float('-inf')
+        maxEval = -64
         ValidMoves = self.getValidMoves(self.currentPlayer)
 
         for move in ValidMoves:
